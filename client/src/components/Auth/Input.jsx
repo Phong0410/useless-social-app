@@ -4,8 +4,9 @@ import { Visibility, VisibilityOff } from "@material-ui/icons";
 
 const Input = ({
   name,
-  handleOnChange,
   label,
+  value,
+  handleOnChange,
   half,
   autoFocus,
   type,
@@ -15,11 +16,12 @@ const Input = ({
     <Grid item xs={12} sm={half ? 6 : 12}>
       <TextField
         name={name}
+        label={label}
+        value={value}
         onChange={handleOnChange}
         variant="outlined"
         required
         fullWidth
-        label={label}
         autoFocus={autoFocus}
         type={type}
         InputProps={

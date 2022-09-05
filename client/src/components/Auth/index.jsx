@@ -12,6 +12,7 @@ import {
 import { LockOutlined } from "@material-ui/icons";
 import { GoogleLogin } from "react-google-login";
 import { useDispatch } from "react-redux";
+import { register, login } from "../../actions/auth";
 
 import { CLIENT_ID } from "../../utils/apis/gapi";
 
@@ -19,21 +20,48 @@ import useStyles from "./styles";
 import Input from "./Input";
 import Icon from "./Icon";
 
+const initFormData = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+};
+
 const Auth = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [formData, setFormData] = useState(initFormData);
   const [showPassword, setShowPassword] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
 
-  const handleSubmit = () => {};
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-  const handleOnChange = () => {};
+    if (isRegister) dispatch(register(formData, navigate));
+    else dispatch(login(formData, navigate));
+  };
+
+  const handleOnChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleShowPassword = () => setShowPassword((prev) => !prev);
 
   const switchMode = () => {
+    setFormData({
+      ...formData,
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
     setIsRegister((prev) => !prev);
     setShowPassword(false);
   };
@@ -74,15 +102,17 @@ const Auth = () => {
             {isRegister && (
               <>
                 <Input
-                  name="firstname"
+                  name="firstName"
                   label="First name"
+                  value={formData.firstName}
                   handleOnChange={handleOnChange}
                   autoFocus
                   half
                 />
                 <Input
-                  name="lastname"
+                  name="lastName"
                   label="Last name"
+                  value={formData.lastName}
                   handleOnChange={handleOnChange}
                   half
                 />
@@ -91,12 +121,14 @@ const Auth = () => {
             <Input
               name="email"
               label="Email address"
+              value={formData.email}
               handleOnChange={handleOnChange}
               type="email"
             />
             <Input
               name="password"
               label="Password"
+              value={formData.password}
               handleOnChange={handleOnChange}
               type={showPassword ? "text" : "password"}
               handleShowPassword={handleShowPassword}
@@ -105,6 +137,7 @@ const Auth = () => {
               <Input
                 name="confirmPassword"
                 label="Confirm password"
+                value={formData.confirmPassword}
                 handleOnChange={handleOnChange}
                 type="password"
               />
