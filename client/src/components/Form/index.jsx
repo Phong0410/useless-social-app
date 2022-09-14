@@ -4,11 +4,10 @@ import FileBase from "react-file-base64";
 import { useSelector, useDispatch } from "react-redux";
 
 import useStyles from "./styles";
-import { createPost, updatePost } from "../../actions/posts";
+import { createPost, updatePost, getPosts } from "../../actions/posts";
 
 const Form = ({ currentId, setCurrentId }) => {
   const [postData, setPostData] = useState({
-    creator: "",
     title: "",
     message: "",
     tags: "",
@@ -16,6 +15,7 @@ const Form = ({ currentId, setCurrentId }) => {
   });
   const classes = useStyles();
   const dispatch = useDispatch();
+  const userName = JSON.parse(localStorage.getItem("profile"))?.result?.name;
 
   const post = useSelector((state) =>
     currentId ? state.posts.find((post) => post._id === currentId) : null
@@ -28,8 +28,10 @@ const Form = ({ currentId, setCurrentId }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (currentId) dispatch(updatePost(currentId, postData));
-    else dispatch(createPost(postData));
+    if (currentId) dispatch(updatePost(currentId, { ...postData, userName }));
+    else dispatch(createPost({ ...postData, name: userName }));
+
+    dispatch(getPosts(1));
 
     clear();
   };
@@ -46,7 +48,7 @@ const Form = ({ currentId, setCurrentId }) => {
   };
 
   return (
-    <Paper className={classes.paper}>
+    <Paper className={classes.paper} elevation={6}>
       <form
         autoComplete="off"
         noValidate
@@ -56,19 +58,6 @@ const Form = ({ currentId, setCurrentId }) => {
         <Typography variant="h6">
           {currentId ? "Updating" : "Creating"} a Memory
         </Typography>
-        <TextField
-          name="creator"
-          variant="outlined"
-          label="Creator"
-          fullWidth
-          value={postData.creator}
-          onChange={(e) =>
-            setPostData({
-              ...postData,
-              creator: e.target.value,
-            })
-          }
-        />
         <TextField
           name="title"
           variant="outlined"

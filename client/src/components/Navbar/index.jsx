@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppBar, Avatar, Button, Toolbar, Typography } from "@material-ui/core";
 import { useSelector, useDispatch } from "react-redux";
+import decode from "jwt-decode";
 
 import useStyles from "./styles";
 
@@ -14,6 +15,10 @@ const Navbar = () => {
 
   const user = useSelector((state) => state.auth.authData);
 
+  useEffect(() => {
+    if (!user) navigate("/auth");
+  }, [user, navigate]);
+
   const logout = () => {
     dispatch({
       type: "LOGOUT",
@@ -21,6 +26,18 @@ const Navbar = () => {
 
     navigate("/auth");
   };
+
+  useEffect(() => {
+    const token = user?.token;
+
+    if (token) {
+      const decodedToken = decode(token);
+
+      if (decodedToken.exp * 1000 < new Date().getTime()) {
+        logout();
+      }
+    }
+  });
 
   return (
     <AppBar className={classes.appBar} position="static" color="inherit">
@@ -42,7 +59,7 @@ const Navbar = () => {
         />
       </div>
       <Toolbar className={classes.toolbar}>
-        {user ? (
+        {user && (
           <div className={classes.profile}>
             <Avatar
               className={classes.purple}
@@ -63,15 +80,6 @@ const Navbar = () => {
               Logout
             </Button>
           </div>
-        ) : (
-          <Button
-            component={Link}
-            to="/auth"
-            variant="contained"
-            color="primary"
-          >
-            Login
-          </Button>
         )}
       </Toolbar>
     </AppBar>
